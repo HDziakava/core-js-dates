@@ -220,8 +220,22 @@ function getWeekNumberByDate(date) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(/* date */) {
-  throw new Error('Not implemented');
+function getNextFridayThe13th(date) {
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  let answer = '';
+
+  const startDate = new Date(Date.UTC(year, month + 1, 13));
+
+  while (!answer) {
+    if (startDate.getUTCDay() === 5) {
+      answer = startDate;
+    } else {
+      startDate.setUTCMonth(startDate.getUTCMonth() + 1);
+    }
+  }
+
+  return new Date(year + 1, answer.getUTCMonth(), 13);
 }
 
 /**
@@ -259,8 +273,43 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const [startDay, startMonth, startYear] = period.start.split('-');
+  const [endDay, endMonth, endYear] = period.end.split('-');
+
+  let startDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+  const endDate = new Date(Date.UTC(endYear, endMonth - 1, endDay));
+  const shedule = [];
+  let doRun = true;
+
+  const workingDaysCount = () => {
+    for (let i = 0; i < countWorkDays; i += 1) {
+      if (startDate.getTime() + 86400000 * i <= endDate.getTime()) {
+        shedule.push(new Date(startDate.getTime() + 86400000 * i));
+      } else {
+        doRun = false;
+        break;
+      }
+    }
+
+    if (doRun) {
+      startDate = new Date(
+        shedule[shedule.length - 1].getTime() + 86400000 * (countOffDays + 1)
+      );
+
+      workingDaysCount();
+    }
+  };
+
+  workingDaysCount();
+
+  return shedule.map((date) => {
+    const day = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+
+    return `${day < 10 ? `0${day}` : day}-${month + 1 < 10 ? `0${month + 1}` : month + 1}-${year}`;
+  });
 }
 
 /**
