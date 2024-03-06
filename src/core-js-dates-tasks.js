@@ -223,21 +223,21 @@ function getWeekNumberByDate(date) {
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
 function getNextFridayThe13th(date) {
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth();
+  const year = date.getFullYear();
+  const month = date.getMonth();
   let answer = '';
 
-  const startDate = new Date(Date.UTC(year, month + 1, 13));
+  const startDate = new Date(year, month, 13);
 
   while (!answer) {
-    if (startDate.getUTCDay() === 5) {
-      answer = startDate;
+    if (startDate.getDay() === 5) {
+      answer = new Date(startDate);
     } else {
-      startDate.setUTCMonth(startDate.getUTCMonth() + 1);
+      startDate.setMonth(startDate.getMonth() + 1);
     }
   }
 
-  return new Date(year + 1, answer.getUTCMonth(), 13);
+  return answer;
 }
 
 /**
